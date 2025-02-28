@@ -11,29 +11,37 @@ class History extends Model
         'status',
         'material_id',
         'quantity',
-        'was',
-        'been',
+        'previous_value',
+        'current_value',
         'from_id',
         'to_id'
     ];
-
     public function material()
     {
         return $this->belongsTo(Material::class, 'material_id');
     }
-
-    public function from()
+    public function product()
     {
-        return $this->belongsTo(Warehouse::class,'warehouse_id');
+        return $this->belongsTo(Product::class,'material_id');
     }
-
-    public function to()
+    public function invoice()
     {
-        return $this->belongsTo(Warehouse::class,'warehouse_id');
+        return $this->belongsTo(Invoice::class,'from_id');
     }
-
-    public function entry()
+    public function warehouse()
     {
-        return $this->belongsTo(Entry::class,'entry_id');
+        return $this->belongsTo(Warehouse::class,'from_id');
+    }
+    public function towarehouse()
+    {
+        return $this->belongsTo(Warehouse::class,'to_id');
+    }
+    public function toProduct()
+    {
+        return $this->belongsTo(Product::class,'to_id');
+    }
+    public function manufacturing()
+    {
+        return $this->belongsTo(Manufacturing::class,'from_id');
     }
 }

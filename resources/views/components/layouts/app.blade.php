@@ -4,23 +4,19 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>ERP</title>
-    <link rel="icon" href="{{ asset('erp.webp') }}" type="image/x-icon">
-    @livewireStyles
-    <!-- Add Select2 CSS in the <head> section -->
-    <link rel="stylesheet" href="{{ asset('plugins/toastr/toastr.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('plugins/select2/css/select2.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css') }}">
+    <title>@yield('title')</title>
 
+    <!-- Google Font: Source Sans Pro -->
+    <link rel="stylesheet" href="{{ asset('../../plugins/select2/css/select2.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('../../plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css') }}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <!-- Google Font: Source Sans Pro -->
     <link rel="stylesheet"
         href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="{{ asset('plugins/fontawesome-free/css/all.min.css') }}">
     <!-- Ionicons -->
-    <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+    <link rel="stylesheet" href="{{ asset('https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css') }}">
     <!-- Tempusdominus Bootstrap 4 -->
     <link rel="stylesheet"
         href="{{ asset('plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css') }}">
@@ -36,15 +32,25 @@
     <link rel="stylesheet" href="{{ asset('plugins/daterangepicker/daterangepicker.css') }}">
     <!-- summernote -->
     <link rel="stylesheet" href="{{ asset('plugins/summernote/summernote-bs4.min.css') }}">
-    <!-- FontAwesome Ikonalarini qo'shish -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0/dist/css/select2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0/dist/js/select2.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
+
+    @livewireStyles
 </head>
 
 <body class="hold-transition sidebar-mini layout-fixed">
     <div class="wrapper">
 
+        <!-- Preloader -->
+        {{-- <div class="preloader flex-column justify-content-center align-items-center">
+    <img class="animation__shake" src="dist/img/AdminLTELogo.png" alt="AdminLTELogo" height="60" width="60">
+  </div> --}}
+
+        <!-- Navbar -->
         <nav class="main-header navbar navbar-expand navbar-white navbar-light">
             <!-- Left navbar links -->
             <ul class="navbar-nav">
@@ -52,236 +58,437 @@
                     <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i
                             class="fas fa-bars"></i></a>
                 </li>
+                <li class="nav-item d-none d-sm-inline-block">
+                    <a href="index3.html" class="nav-link">Home</a>
+                </li>
+                <li class="nav-item d-none d-sm-inline-block">
+                    <a href="#" class="nav-link">Contact</a>
+                </li>
             </ul>
 
             <!-- Right navbar links -->
             <ul class="navbar-nav ml-auto">
+                <!-- Navbar Search -->
+                <li class="nav-item">
+                    <a class="nav-link" data-widget="navbar-search" href="#" role="button">
+                        <i class="fas fa-search"></i>
+                    </a>
+                    <div class="navbar-search-block">
+                        <form class="form-inline">
+                            <div class="input-group input-group-sm">
+                                <input class="form-control form-control-navbar" type="search" placeholder="Search"
+                                    aria-label="Search">
+                                <div class="input-group-append">
+                                    <button class="btn btn-navbar" type="submit">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                    <button class="btn btn-navbar" type="button" data-widget="navbar-search">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </li>
+
+                <!-- Messages Dropdown Menu -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link" data-toggle="dropdown" href="#">
+                        <i class="far fa-comments"></i>
+                        <span class="badge badge-danger navbar-badge">3</span>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+                        <a href="#" class="dropdown-item">
+                            <!-- Message Start -->
+                            <div class="media">
+                                <img src="dist/img/user1-128x128.jpg" alt="User Avatar"
+                                    class="img-size-50 mr-3 img-circle">
+                                <div class="media-body">
+                                    <h3 class="dropdown-item-title">
+                                        Brad Diesel
+                                        <span class="float-right text-sm text-danger"><i class="fas fa-star"></i></span>
+                                    </h3>
+                                    <p class="text-sm">Call me whenever you can...</p>
+                                    <p class="text-sm text-muted"><i class="far fa-clock mr-1"></i> 4 Hours Ago</p>
+                                </div>
+                            </div>
+                            <!-- Message End -->
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a href="#" class="dropdown-item">
+                            <!-- Message Start -->
+                            <div class="media">
+                                <img src="dist/img/user8-128x128.jpg" alt="User Avatar"
+                                    class="img-size-50 img-circle mr-3">
+                                <div class="media-body">
+                                    <h3 class="dropdown-item-title">
+                                        John Pierce
+                                        <span class="float-right text-sm text-muted"><i
+                                                class="fas fa-star"></i></span>
+                                    </h3>
+                                    <p class="text-sm">I got your message bro</p>
+                                    <p class="text-sm text-muted"><i class="far fa-clock mr-1"></i> 4 Hours Ago</p>
+                                </div>
+                            </div>
+                            <!-- Message End -->
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a href="#" class="dropdown-item">
+                            <!-- Message Start -->
+                            <div class="media">
+                                <img src="dist/img/user3-128x128.jpg" alt="User Avatar"
+                                    class="img-size-50 img-circle mr-3">
+                                <div class="media-body">
+                                    <h3 class="dropdown-item-title">
+                                        Nora Silvester
+                                        <span class="float-right text-sm text-warning"><i
+                                                class="fas fa-star"></i></span>
+                                    </h3>
+                                    <p class="text-sm">The subject goes here</p>
+                                    <p class="text-sm text-muted"><i class="far fa-clock mr-1"></i> 4 Hours Ago</p>
+                                </div>
+                            </div>
+                            <!-- Message End -->
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a href="#" class="dropdown-item dropdown-footer">See All Messages</a>
+                    </div>
+                </li>
+                <!-- Notifications Dropdown Menu -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link" data-toggle="dropdown" href="#">
+                        <i class="far fa-bell"></i>
+                        <span class="badge badge-warning navbar-badge">15</span>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+                        <span class="dropdown-item dropdown-header">15 Notifications</span>
+                        <div class="dropdown-divider"></div>
+                        <a href="#" class="dropdown-item">
+                            <i class="fas fa-envelope mr-2"></i> 4 new messages
+                            <span class="float-right text-muted text-sm">3 mins</span>
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a href="#" class="dropdown-item">
+                            <i class="fas fa-users mr-2"></i> 8 friend requests
+                            <span class="float-right text-muted text-sm">12 hours</span>
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a href="#" class="dropdown-item">
+                            <i class="fas fa-file mr-2"></i> 3 new reports
+                            <span class="float-right text-muted text-sm">2 days</span>
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a href="#" class="dropdown-item dropdown-footer">See All Notifications</a>
+                    </div>
+                </li>
                 <li class="nav-item">
                     <a class="nav-link" data-widget="fullscreen" href="#" role="button">
                         <i class="fas fa-expand-arrows-alt"></i>
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-widget="control-sidebar" data-controlsidebar-slide="true"
+                        href="#" role="button">
+                        <i class="fas fa-th-large"></i>
+                    </a>
+                </li>
             </ul>
         </nav>
+        <!-- /.navbar -->
+
+        <!-- Main Sidebar Container -->
         <aside class="main-sidebar sidebar-dark-primary elevation-4">
             <!-- Brand Logo -->
-            <a href="#" class="brand-link">
-                <img src="{{ asset('erp.webp') }}" class="brand-image img-circle elevation-3" style="opacity: .8">
-                <span class="brand-text">EPR</span>
+            <a href="index3.html" class="brand-link">
+                <img src="{{ asset('dist/img/AdminLTELogo.png') }}" alt="AdminLTE Logo"
+                    class="brand-image img-circle elevation-3" style="opacity: .8">
+                <span class="brand-text font-weight-light">AdminLTE 3</span>
             </a>
 
             <!-- Sidebar -->
             <div class="sidebar">
-                <div class="d-flex">
+                <!-- Sidebar user panel (optional) -->
+                <div class="user-panel mt-3 pb-3 mb-3 d-flex">
                     <div class="image">
-                        @if (auth()->check() && auth()->user()->image)
-                            <img src="{{ asset('storage/' . auth()->user()->image) }}" class="img-circle elevation-2"
-                                alt="User Image">
-                        @endif
+                        <img src="{{ asset('dist/img/user2-160x160.jpg') }}" class="img-circle elevation-2"
+                            alt="User Image">
+                    </div>
+                    <div class="info">
+                        <a href="#" class="d-block">Alexander Pierce</a>
                     </div>
                 </div>
+
+                <!-- SidebarSearch Form -->
+                <div class="form-inline">
+                    <div class="input-group" data-widget="sidebar-search">
+                        <input class="form-control form-control-sidebar" type="search" placeholder="Search"
+                            aria-label="Search">
+                        <div class="input-group-append">
+                            <button class="btn btn-sidebar">
+                                <i class="fas fa-search fa-fw"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sidebar Menu -->
                 <nav class="mt-2">
                     <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu"
                         data-accordion="false">
+                        <!-- Add icons to the links using the .nav-icon class
+               with font-awesome or any other icon font library -->
+
+                        <li
+                            class="nav-item has-treeview {{ Request::is('role*') || Request::is('user*') || Request::is('group*') || Request::is('permission*') ? 'menu-open' : '' }}">
+                            <a href="#"
+                                class="nav-link {{ Request::is('role*') || Request::is('user*') || Request::is('group*') || Request::is('permission*') ? 'active' : '' }}">
+                                <i class="nav-icon fas fa-user-shield"></i> <!-- Users uchun ikonka -->
+                                <p>
+                                    Users
+                                    <i class="right fas fa-angle-left"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="/role" class="nav-link {{ Request::is('role') ? 'active' : '' }}">
+                                        <i class="nav-icon fas fa-user-shield"></i> <!-- Role uchun ikonka -->
+                                        <p>Roles</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="/user" class="nav-link {{ Request::is('user') ? 'active' : '' }}">
+                                        <i class="nav-icon fas fa-users"></i> <!-- Users uchun ikonka -->
+                                        <p>Users</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{{ route('group.index') }}"
+                                        class="nav-link {{ Request::is('group*') ? 'active' : '' }}">
+                                        <i class="nav-icon fas fa-cogs"></i> <!-- Permission Groups uchun ikonka -->
+                                        <p>PermissionGroups</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{{ route('permission.index') }}"
+                                        class="nav-link {{ Request::is('permission*') ? 'active' : '' }}">
+                                        <i class="nav-icon fas fa-key"></i> <!-- Permissions uchun ikonka -->
+                                        <p>Permissions</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li
+                            class="nav-item has-treeview {{ Request::is('employee*') || Request::is('department*') || Request::is('salarytype*') || Request::is('customer*') ? 'menu-open' : '' }}">
+                            <a href="#"
+                                class="nav-link {{ Request::is('employee*') || Request::is('department*') || Request::is('salarytype*') || Request::is('customer*') ? 'active' : '' }}">
+                                <i class="nav-icon fas fa-user-tie"></i> <!-- Hodimlar uchun ikonka -->
+                                <p>
+                                    Personnel
+                                    <i class="right fas fa-angle-left"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="{{ route('department.index') }}"
+                                        class="nav-link {{ Request::is('department*') ? 'active' : '' }}">
+                                        <i class="nav-icon fas fa-building"></i>
+                                        <p>Departments</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{{ route('employee.index') }}"
+                                        class="nav-link {{ Request::is('employee*') ? 'active' : '' }}">
+                                        <i class="nav-icon fas fa-user"></i> <!-- Employee uchun ikonka -->
+                                        <p>Employees</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{{ route('salarytype.index') }}"
+                                        class="nav-link {{ Request::is('salarytype*') ? 'active' : '' }}">
+                                        <i class="nav-icon fas fa-money-bill-wave"></i>
+                                        <p>Salary Types</p>
+                                    </a>
+                                </li>
+                                <!-- Yangi Customer bo‘limi -->
+                                <li class="nav-item">
+                                    <a href="{{ route('customer.index') }}"
+                                        class="nav-link {{ Request::is('customer*') ? 'active' : '' }}">
+                                        <i class="nav-icon fas fa-user-friends"></i> <!-- Eng mos ikonka -->
+                                        <p>Customers</p>
+                                    </a>
+                                </li>
+
+                            </ul>
+                        </li>
+                        <li
+                            class="nav-item has-treeview {{ Request::is('warehouse*') || Request::is('invoice_materials*') || Request::is('invoice*') || Request::is('products*') || Request::is('machines*') || Request::is('manufacturing*') || Request::is('productions*') ? 'menu-open' : '' }}">
+                            <a href="#"
+                                class="nav-link {{ Request::is('warehouse*') || Request::is('invoice_materials*') || Request::is('invoice*') || Request::is('products*') || Request::is('machines*') || Request::is('manufacturing*') || Request::is('productions*') ? 'active' : '' }}">
+                                <i class="nav-icon fas fa-warehouse"></i>
+                                <p>
+                                    Warehouse
+                                    <i class="right fas fa-angle-left"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="{{ route('warehouse.index') }}"
+                                        class="nav-link {{ Request::is('warehouse') ? 'active' : '' }}">
+                                        <i class="nav-icon fas fa-clipboard-list"></i>
+                                        <p>All Warehouses</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{{ route('invoice_materials.index') }}"
+                                        class="nav-link {{ Request::is('invoice_materials') ? 'active' : '' }}">
+                                        <i class="nav-icon fas fa-industry"></i>
+                                        <p>Invoice Materials</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{{ route('machines.index') }}"
+                                        class="nav-link {{ Request::is('machines') ? 'active' : '' }}">
+                                        <i class="nav-icon fas fa-cogs"></i>
+                                        <p>Machines</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{{ route('products.index') }}"
+                                        class="nav-link {{ Request::is('products*') ? 'active' : '' }}">
+                                        <i class="nav-icon fas fa-box"></i>
+                                        <p>Products</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{{ route('manufacturing.index') }}"
+                                        class="nav-link {{ Request::is('manufacturing*') ? 'active' : '' }}">
+                                        <i class="nav-icon fas fa-industry"></i>
+                                        <p>Manufacturing</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{{ route('productions.index') }}"
+                                        class="nav-link {{ Request::is('productions*') ? 'active' : '' }}">
+                                        <i class="nav-icon fas fa-tools"></i>
+                                        <p>Productions</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li
+                            class="nav-item has-treeview {{ Request::is('history/material*') || Request::is('history/product*') ? 'menu-open' : '' }}">
+                            <a href="#"
+                                class="nav-link {{ Request::is('history/material*') || Request::is('history/product*') ? 'active' : '' }}">
+                                <i class="nav-icon fas fa-history"></i>
+                                <p>
+                                    History
+                                    <i class="right fas fa-angle-left"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="{{ route('history.material') }}"
+                                        class="nav-link {{ Request::is('history/material*') ? 'active' : '' }}">
+                                        <i class="nav-icon fas fa-boxes"></i>
+                                        <p>Material History</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href=""
+                                        class="nav-link {{ Request::is('history/product*') ? 'active' : '' }}">
+                                        <i class="nav-icon fas fa-cube"></i>
+                                        <p>Product History</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+
+
+
+
                         <li class="nav-item">
-                            <a href="{{ route('dashboard') }}"
-                                class="nav-link {{ request()->is('dashboard') ? 'active' : '' }}">
-                                <i class="fas fa-dashboard"></i>
-                                <p>Dashboard</p>
+                            <a href="{{ route('login.logout') }}" class="nav-link">
+                                <i class="nav-icon fas fa-sign-out-alt"></i> <!-- Logout uchun ikonka -->
+                                <p>
+                                    Logout
+                                </p>
                             </a>
                         </li>
-                        @if (auth()->user()->role_id == 1)
-                            <li
-                                class="nav-item has-treeview {{ request()->is('users*') || request()->is('roles*') || request()->is('permissions*') || request()->is('groups*') ? 'menu-open' : '' }}">
-                                <a href="#"
-                                    class="nav-link {{ request()->is('users*') || request()->is('roles*') || request()->is('permissions*') || request()->is('groups*') ? 'active' : '' }}">
-                                    <i class="fas fa-cogs"></i>
-                                    <p>
-                                        Auth
-                                        <i class="right fas fa-angle-left"></i>
-                                    </p>
-                                </a>
-                                <ul class="nav nav-treeview">
-                                    <li class="nav-item">
-                                        <a href="{{ route('users.index') }}"
-                                            class="nav-link {{ request()->is('users*') ? 'active' : '' }}">
-                                            <i class="fas fa-user"></i>
-                                            <p>Users</p>
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a href="{{ route('roles.index') }}"
-                                            class="nav-link {{ request()->is('roles*') ? 'active' : '' }}">
-                                            <i class="fas fa-user-shield"></i>
-                                            <p>Roles</p>
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a href="{{ route('permissions.index') }}"
-                                            class="nav-link {{ request()->is('permissions*') ? 'active' : '' }}">
-                                            <i class="fas fa-lock"></i>
-                                            <p>Permissions</p>
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a href="{{ route('groups.index') }}"
-                                            class="nav-link {{ request()->is('groups*') ? 'active' : '' }}">
-                                            <i class="fas fa-users"></i>
-                                            <p>Groups</p>
-                                        </a>
-                                    </li>
-                                </ul>
-                            </li>
-                        @endif
-                        @if (auth()->user()->role_id == 5 || auth()->user()->role_id == 1)
-                            <li
-                                class="nav-item has-treeview {{ request()->is('salary_types*') || request()->is('sections*') || request()->is('workers*') ? 'menu-open' : '' }}">
-                                <a href="#"
-                                    class="nav-link {{ request()->is('salary_types*') || request()->is('sections*') || request()->is('workers*') ? 'active' : '' }}">
-                                    <i class="fas fa-user-tie"></i>
-                                    <p>
-                                        HR
-                                        <i class="right fas fa-angle-left"></i>
-                                    </p>
-                                </a>
-                                <ul class="nav nav-treeview">
-                                    <li class="nav-item">
-                                        <a href="{{ route('salary_types.index') }}"
-                                            class="nav-link {{ request()->is('salary_types*') ? 'active' : '' }}">
-                                            <i class="fas fa-calculator"></i>
-                                            <p>Salary Types</p>
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a href="{{ route('sections.index') }}"
-                                            class="nav-link {{ request()->is('sections*') ? 'active' : '' }}">
-                                            <i class="fas fa-layer-group"></i>
-                                            <p>Sections</p>
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a href="{{ route('workers.index') }}"
-                                            class="nav-link {{ request()->is('workers*') ? 'active' : '' }}">
-                                            <i class="fas fa-users-cog"></i>
-                                            <p>Workers</p>
-                                        </a>
-                                    </li>
-                                </ul>
-                            </li>
-                        @endif
-                        @if (auth()->user()->role_id == 1 || auth()->user()->role_id == 7)
-                            <li
-                                class="nav-item has-treeview {{ request()->is('warehouses*') || request()->is('revenues*') ? 'menu-open' : '' }}">
-                                <a href="#"
-                                    class="nav-link {{ request()->is('warehouses*') || request()->is('revenues*') ? 'active' : '' }}">
-                                    <i class="fas fa-warehouse"></i>
-                                    <p>
-                                        Warehouse Manager
-                                        <i class="right fas fa-angle-left"></i>
-                                    </p>
-                                </a>
-                                <ul class="nav nav-treeview">
-                                    <li class="nav-item">
-                                        <a href="{{ route('warehouses.index') }}"
-                                            class="nav-link {{ request()->is('warehouses*') ? 'active' : '' }}">
-                                            <i class="fas fa-boxes"></i>
-                                            <p>Warehouses</p>
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a href="{{ route('revenues.index') }}"
-                                            class="nav-link {{ request()->is('revenues*') ? 'active' : '' }}">
-                                            <i class="fas fa-chart-line"></i>
-                                            <p>Revenues</p>
-                                        </a>
-                                    </li>
-                                </ul>
-                            </li>
-                        @endif
-                        @if (auth()->user()->role_id == 1 || auth()->user()->role_id == 4)
-                            <li
-                                class="nav-item has-treeview {{ request()->is('products*') || request()->is('machines*') || request()->is('produces*') || request()->is('manufactures*') ? 'menu-open' : '' }}">
-                                <a href="#"
-                                    class="nav-link {{ request()->is('products*') || request()->is('machines*') || request()->is('produces*') || request()->is('manufactures*') ? 'active' : '' }}">
-                                    <i class="fas fa-cogs"></i>
-                                    <p>
-                                        Manufacturer
-                                        <i class="right fas fa-angle-left"></i>
-                                    </p>
-                                </a>
-                                <ul class="nav nav-treeview">
-                                    <li class="nav-item">
-                                        <a href="{{ route('products.index') }}"
-                                            class="nav-link {{ request()->is('products*') ? 'active' : '' }}">
-                                            <i class="fas fa-tags"></i>
-                                            <p>Products</p>
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a href="{{ route('machines.index') }}"
-                                            class="nav-link {{ request()->is('machines*') ? 'active' : '' }}">
-                                            <i class="fas fa-tractor"></i>
-                                            <p>Machines</p>
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a href="{{ route('produces.index') }}"
-                                            class="nav-link {{ request()->is('produces*') ? 'active' : '' }}">
-                                            <i class="fas fa-industry"></i>
-                                            <p>Production</p>
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a href="{{ route('manufactures.index') }}"
-                                            class="nav-link {{ request()->is('manufactures*') ? 'active' : '' }}">
-                                            <i class="fas fa-tools"></i>
-                                            <p>Manufacture</p>
-                                        </a>
-                                    </li>
-                                </ul>
-                            </li>
-                        @endif
-                        <li class="list-group-item">
-                            <form action="{{ route('logout') }}" method="POST"
-                                class="d-flex align-items-center w-100">
-                                @csrf
-                                <button type="submit"
-                                    class="btn btn-link text-danger w-100 text-start d-flex align-items-center">
-                                    <i class="fas fa-sign-out-alt me-2"></i> Logout
-                                </button>
-                            </form>
-                        </li>
+
+
+
+
+
+
+
+
+
+
+
+
                     </ul>
                 </nav>
+                <!-- /.sidebar-menu -->
             </div>
+            <!-- /.sidebar -->
         </aside>
 
-        @if (request()->route()->getName() == 'manufactures.index')
-            {{ $slot }}
-        @endif
-        <div class="content-wrapper">
+        <!-- Content Wrapper. Contains page content -->
+        {{-- <div class="content-wrapper">
+            <!-- Content Header (Page header) -->
+
+            <!-- /.content-header -->
+
+            <!-- Main content -->
             <section class="content">
                 <div class="container-fluid">
-                    @if (request()->route()->getName() == 'products.index' || request()->route()->getName() == 'produces.index')
-                        {{ $slot }}
-                    @else
-                        @yield('content')
-                    @endif
-                </div>
+                    <!-- Small boxes (Stat box) -->
+
+                    <!-- /.row -->
+                    <!-- Main row -->
+                    <div class="row"> --}}
+        <!-- Left col -->
+
+        <!-- /.Left col -->
+        <!-- right col (We are only adding the ID to make the widgets sortable)-->
+        @yield('contents')
+        {{ $slot }}
+        <!-- right col -->
+        {{-- </div>
+                    <!-- /.row (main row) -->
+                </div><!-- /.container-fluid -->
             </section>
-        </div>
+            <!-- /.content -->
+        </div> --}}
+        <!-- /.content-wrapper -->
+        <footer class="main-footer">
+            <strong>Copyright &copy; 2014-2021 <a href="https://adminlte.io">AdminLTE.io</a>.</strong>
+            All rights reserved.
+            <div class="float-right d-none d-sm-inline-block">
+                <b>Version</b> 3.2.0
+            </div>
+        </footer>
+
+        <!-- Control Sidebar -->
+        <aside class="control-sidebar control-sidebar-dark">
+            <!-- Control sidebar content goes here -->
+        </aside>
+        <!-- /.control-sidebar -->
     </div>
-    @livewireScripts
-    <script src="{{ asset('plugins/toastr/toastr.min.js') }}"></script>
+    <!-- ./wrapper -->
+
     <!-- jQuery -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous">
+    </script>
     <script src="{{ asset('plugins/jquery/jquery.min.js') }}"></script>
     <!-- jQuery UI 1.11.4 -->
     <script src="{{ asset('plugins/jquery-ui/jquery-ui.min.js') }}"></script>
+    <!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
     <script>
         $.widget.bridge('uibutton', $.ui.button)
     </script>
     <!-- Bootstrap 4 -->
-    <script src="{{ asset('plugins/select2/js/select2.full.min.js') }}"></script>
     <script src="{{ asset('plugins/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
     <!-- ChartJS -->
     <script src="{{ asset('plugins/chart.js/Chart.min.js') }}"></script>
@@ -304,157 +511,15 @@
     <!-- AdminLTE App -->
     <script src="{{ asset('dist/js/adminlte.js') }}"></script>
     <!-- AdminLTE for demo purposes -->
-    <script src="{{ asset('dist/js/demo.js') }}"></script>
+    {{-- <script src="dist/js/demo.js"></script> --}}
     <!-- AdminLTE dashboard demo (This is only for demo purposes) -->
     <script src="{{ asset('dist/js/pages/dashboard.js') }}"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous">
-    </script>
-    <script>
-        $(function() {
-            //Initialize Select2 Elements
-            $('.select2').select2()
 
-            //Initialize Select2 Elements
-            $('.select2bs4').select2({
-                theme: 'bootstrap4'
-            })
-
-            //Datemask dd/mm/yyyy
-            $('#datemask').inputmask('dd/mm/yyyy', {
-                'placeholder': 'dd/mm/yyyy'
-            })
-            //Datemask2 mm/dd/yyyy
-            $('#datemask2').inputmask('mm/dd/yyyy', {
-                'placeholder': 'mm/dd/yyyy'
-            })
-            //Money Euro
-            $('[data-mask]').inputmask()
-
-            //Date picker
-            $('#reservationdate').datetimepicker({
-                format: 'L'
-            });
-
-            //Date and time picker
-            $('#reservationdatetime').datetimepicker({
-                icons: {
-                    time: 'far fa-clock'
-                }
-            });
-
-            //Date range picker
-            $('#reservation').daterangepicker()
-            //Date range picker with time picker
-            $('#reservationtime').daterangepicker({
-                timePicker: true,
-                timePickerIncrement: 30,
-                locale: {
-                    format: 'MM/DD/YYYY hh:mm A'
-                }
-            })
-            //Date range as a button
-            $('#daterange-btn').daterangepicker({
-                    ranges: {
-                        'Today': [moment(), moment()],
-                        'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-                        'Last 7 Days': [moment().subtract(6, 'days'), moment()],
-                        'Last 30 Days': [moment().subtract(29, 'days'), moment()],
-                        'This Month': [moment().startOf('month'), moment().endOf('month')],
-                        'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1,
-                            'month').endOf('month')]
-                    },
-                    startDate: moment().subtract(29, 'days'),
-                    endDate: moment()
-                },
-                function(start, end) {
-                    $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format(
-                        'MMMM D, YYYY'))
-                }
-            )
-
-            //Timepicker
-            $('#timepicker').datetimepicker({
-                format: 'LT'
-            })
-
-            //Bootstrap Duallistbox
-            $('.duallistbox').bootstrapDualListbox()
-
-            //Colorpicker
-            $('.my-colorpicker1').colorpicker()
-            //color picker with addon
-            $('.my-colorpicker2').colorpicker()
-
-            $('.my-colorpicker2').on('colorpickerChange', function(event) {
-                $('.my-colorpicker2 .fa-square').css('color', event.color.toString());
-            })
-
-            $("input[data-bootstrap-switch]").each(function() {
-                $(this).bootstrapSwitch('state', $(this).prop('checked'));
-            })
-
-        })
-        // BS-Stepper Init
-        document.addEventListener('DOMContentLoaded', function() {
-            window.stepper = new Stepper(document.querySelector('.bs-stepper'))
-        })
-
-        // DropzoneJS Demo Code Start
-        Dropzone.autoDiscover = false
-
-        // Get the template HTML and remove it from the doumenthe template HTML and remove it from the doument
-        var previewNode = document.querySelector("#template")
-        previewNode.id = ""
-        var previewTemplate = previewNode.parentNode.innerHTML
-        previewNode.parentNode.removeChild(previewNode)
-
-        var myDropzone = new Dropzone(document.body, { // Make the whole body a dropzone
-            url: "/target-url", // Set the url
-            thumbnailWidth: 80,
-            thumbnailHeight: 80,
-            parallelUploads: 20,
-            previewTemplate: previewTemplate,
-            autoQueue: false, // Make sure the files aren't queued until manually added
-            previewsContainer: "#previews", // Define the container to display the previews
-            clickable: ".fileinput-button" // Define the element that should be used as click trigger to select files.
-        })
-
-        myDropzone.on("addedfile", function(file) {
-            // Hookup the start button
-            file.previewElement.querySelector(".start").onclick = function() {
-                myDropzone.enqueueFile(file)
-            }
-        })
-
-        // Update the total progress bar
-        myDropzone.on("totaluploadprogress", function(progress) {
-            document.querySelector("#total-progress .progress-bar").style.width = progress + "%"
-        })
-
-        myDropzone.on("sending", function(file) {
-            // Show the total progress bar when upload starts
-            document.querySelector("#total-progress").style.opacity = "1"
-            // And disable the start button
-            file.previewElement.querySelector(".start").setAttribute("disabled", "disabled")
-        })
-
-        // Hide the total progress bar when nothing's uploading anymore
-        myDropzone.on("queuecomplete", function(progress) {
-            document.querySelector("#total-progress").style.opacity = "0"
-        })
-
-        // Setup the buttons for all transfers
-        // The "add files" button doesn't need to be setup because the config
-        // `clickable` has already been specified.
-        document.querySelector("#actions .start").onclick = function() {
-            myDropzone.enqueueFiles(myDropzone.getFilesWithStatus(Dropzone.ADDED))
-        }
-        document.querySelector("#actions .cancel").onclick = function() {
-            myDropzone.removeAllFiles(true)
-        }
-        // DropzoneJS Demo Code End
-    </script>
+    <script src="{{ asset('../../plugins/select2/js/select2.full.min.js') }}"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
+    
+    @livewireScripts
 </body>
 
 </html>

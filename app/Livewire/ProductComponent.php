@@ -2,173 +2,185 @@
 
 namespace App\Livewire;
 
-use App\Models\Product;
-use App\Models\ProductMaterial;
-use App\Models\Material;
 use Livewire\Component;
 use Livewire\WithFileUploads;
+use App\Models\Material;
+use App\Models\Product;
+use App\Models\ProductIngredient;
 use Illuminate\Support\Str;
 
 class ProductComponent extends Component
 {
     use WithFileUploads;
 
-    public $products, $name, $image, $materials = [], $product_id, $price;
-    public $modalOpen = false, $editModalOpen = false, $viewModalOpen = false;
-    public $viewMaterials = [];
-
+    public $name;
+    public $image;
+    public $price;
+    public $materials = [];
+    public $allMaterials = [];
+    public $showModal = false;
+    public $products;
+    public $editName, $editImage;
+    public $editPrice;
+    public $productId;
+    public $showIngredientsModal = false;
+    public $showeditModal = false;
+    public $currentImage;
+    public $editMaterials = [];
+    public $detailproduct=null;
     public function mount()
     {
-        $this->loadProducts();
+        
+        $this->allMaterials = Material::all();
+        $this->materials = [['material' => '', 'quantity' => 1]];
     }
-
-    private function loadProducts()
+    public function showIngredient($id)
     {
-        $this->products = Product::with('product_materials.material')->get();
+        // dd($id);
+        $this->detailproduct=Product::findOrFail($id);
+        $this->showIngredientsModal = true; 
     }
-
-    public function openModal()
-    {
-        $this->resetFields();
-        $this->addMaterial();
-        $this->modalOpen = true;
-    }
-
-    public function closeModal()
-    {
-        $this->modalOpen = false;
-    }
-
-    public function openEditModal($id)
-    {
-        $product = Product::with('product_materials')->findOrFail($id);
-        $this->product_id = $product->id;
-        $this->name = $product->name;
-        $this->price = $product->price;
-        $this->materials = $product->product_materials->map(function ($mat) {
-            return ['material_id' => $mat->material_id, 'value' => $mat->value, 'unit' => $mat->unit];
-        })->toArray();
-
-        $this->editModalOpen = true;
-    }
-
-    public function closeEditModal()
-    {
-        $this->editModalOpen = false;
-    }
-
-    private function resetFields()
-    {
-        $this->product_id = null;
-        $this->name = '';
-        $this->image = null;
-        $this->materials = [];
-    }
-
     public function addMaterial()
     {
-        $this->materials[] = ['material_id' => '', 'value' => '', 'unit' => ''];
+        $this->materials[] = ['material' => '', 'quantity' => 1];
+        $this->editMaterials[] = ['material' => '', 'quantity' => 1];
     }
 
     public function removeMaterial($index)
     {
         unset($this->materials[$index]);
         $this->materials = array_values($this->materials);
+        unset($this->editMaterials[$index]);
+        $this->editMaterials = array_values($this->editMaterials);
     }
 
     public function saveProduct()
     {
+        $this->showModal = false;
+
         $this->validate([
             'name' => 'required|string|max:255',
             'image' => 'nullable|image|max:2048',
-            'price' => 'required|numeric|min:1',
-            'materials.*.material_id' => 'required|exists:materials,id',
-            'materials.*.value' => 'required|numeric|min:0.1',
+            'price' => 'required|numeric|min:0', 
+            'materials.*.material' => 'required|exists:materials,id',
+            'materials.*.quantity' => 'required|numeric|min:1',
         ]);
 
-        $imagePath = $this->image ? $this->image->store('products', 'public') : null;
+        $imagePath = null;
 
+        if ($this->image) {
+            $extension = $this->image->getClientOriginalExtension();
+            $filename = now()->format("Y-m-d") . '_' . time() . '.' . $extension;
+            $imagePath = $this->image->storeAs('img_uploaded', $filename, 'public');
+        }
+        $slug=Str::slug($this->name);
         $product = Product::create([
             'name' => $this->name,
-            'image' => $imagePath,
+            'img' => $imagePath,
             'price' => $this->price,
-            'slug' => Str::slug($this->name),
+            'slug' => $slug,
         ]);
 
-        foreach ($this->materials as $mat) {
-            $material = Material::find($mat['material_id']);
-            $unit = $material->entry_materials->first()->unit ?? '';
+        foreach ($this->materials as $material) {
+            $materialModel = Material::find($material['material']);
+            $invoiceMaterial = $materialModel->invoiceMaterials->first();
 
-            ProductMaterial::create([
+            if ($invoiceMaterial) {
+                $unit = $invoiceMaterial->unit;
+            } else {
+                $unit = 'No Unit';
+            }
+
+            ProductIngredient::create([
                 'product_id' => $product->id,
-                'material_id' => $mat['material_id'],
-                'value' => $mat['value'],
-                'unit' => $unit,
-                'warehouse_id' => 1
-            ]);
-        }
-
-        $this->loadProducts();
-        $this->closeModal();
-    }
-
-    public function updateProduct()
-    {
-        $this->validate([
-            'name' => 'required|string|max:255',
-            'price' => 'required|numeric|min:1',
-            'materials.*.material_id' => 'required|exists:materials,id',
-            'materials.*.value' => 'required|numeric|min:0.1',
-        ]);
-
-        $product = Product::findOrFail($this->product_id);
-        $product->update(['name' => $this->name, 'price' => $this->price]);
-
-        ProductMaterial::where('product_id', $product->id)->delete();
-
-        foreach ($this->materials as $mat) {
-            $material = Material::find($mat['material_id']);
-            $unit = $material->entry_materials->first()->unit ?? '';
-
-            ProductMaterial::create([
-                'product_id' => $product->id,
-                'material_id' => $mat['material_id'],
-                'value' => $mat['value'],
+                'material_id' => $material['material'],
+                'value' => $material['quantity'],
                 'unit' => $unit,
             ]);
         }
 
-        $this->loadProducts();
-        $this->closeEditModal();
-    }
+        $this->reset(['name', 'image', 'materials']);
+        $this->materials = [['material' => '', 'quantity' => 1]];
 
-    public function viewProduct($id)
+        session()->flash('success', 'Product successfully created!');
+    }
+    // app/Http/Livewire/ProductComponent.php
+
+    public function editProduct($productId)
     {
-        $product = Product::with('product_materials.material')->findOrFail($id);
-        $this->viewMaterials = $product->product_materials->map(function ($mat) {
+        // Modal oynasini ko'rsatish
+        $this->productId = $productId;
+        $product = Product::findOrFail($productId);
+        $this->showeditModal = true;
+
+        // Mahsulot nomi va rasmi
+        $this->editName = $product->name;
+        $this->editImage = $product->img;
+        $this->editPrice = $product->price;
+
+        // Materiallar (ingredients) tahrirlash uchun
+        $this->editMaterials = $product->ingredients->map(function ($ingredient) {
             return [
-                'name' => $mat->material->name,
-                'value' => $mat->value,
-                'unit' => $mat->unit
+                'material' => $ingredient->material->id,
+                'quantity' => $ingredient->value,
+                'unit' => $ingredient->material->unit,
             ];
         })->toArray();
-
-        $this->viewModalOpen = true;
     }
-
-    public function closeViewModal()
+    public function updateProduct(Product $product)
     {
-        $this->viewModalOpen = false;
+        $product = Product::findOrFail($this->productId);
+        $this->showeditModal = false;
+
+        $this->validate([
+            'editName' => 'required|string|max:255',
+            'image' => 'nullable|max:2048',
+            'editPrice' => 'required|numeric|min:0', 
+            'editMaterials.*.material' => 'required|exists:materials,id',
+            'editMaterials.*.quantity' => 'required|numeric|min:1',
+        ]);
+
+        $imagePath = null;
+        if ($this->image) {
+            $extension = $this->image->getClientOriginalExtension();
+            $filename = now()->format("Y-m-d") . '_' . time() . '.' . $extension;
+            $imagePath = $this->image->storeAs('img_uploaded', $filename, 'public');
+        }
+
+        $product->name = $this->editName;
+        $product->slug=Str::slug($this->editName);
+        if ($imagePath) {
+            $product->img = $imagePath;
+        }
+        $product->price=$this->editPrice;
+        $product->save();
+
+        ProductIngredient::where('product_id', $product->id)->delete();
+
+        foreach ($this->editMaterials as $material) {
+            $materialModel = Material::find($material['material']);
+            $invoiceMaterial = $materialModel->invoiceMaterials->first();
+
+            $unit = $invoiceMaterial ? $invoiceMaterial->unit : 'No Unit';
+
+            ProductIngredient::create([
+                'product_id' => $product->id,
+                'material_id' => $material['material'],
+                'value' => $material['quantity'],
+                'unit' => $unit,
+            ]);
+        }
+
+        $this->reset(['editName', 'editImage', 'editMaterials']);
+        $this->editMaterials = [['material' => '', 'quantity' => 1]];
+
+        session()->flash('success', 'Product successfully updated!');
     }
 
-    public function deleteProduct($id)
-    {
-        Product::findOrFail($id)->delete();
-        $this->loadProducts();
-    }
 
     public function render()
     {
-        return view('manufacturer.products.product-component', ['materialsList' => Material::all()]);
+        $this->products = Product::all();
+        return view('livewire.product-component');
     }
 }

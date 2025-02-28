@@ -6,10 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class Machine extends Model
 {
-    protected $fillable = ['name','status'];
-
-    public function machine_produces()
+    protected $fillable=[
+        'name',
+        'status'
+    ];
+    public function machineproducts()
     {
-        return $this->hasMany(MachineProduce::class, 'machine_id');
+        return $this->hasMany(MachineProduct::class);
     }
 }

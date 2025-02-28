@@ -6,19 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class Warehouse extends Model
 {
-    protected $fillable = [
+    protected $fillable=[
         'name',
         'user_id',
-        'status',
+        'status'
     ];
-
     public function user()
     {
-        return $this->belongsTo(User::class, 'user_id');
-    }
-
-    public function product_materials()
-    {
-        return $this->hasMany(ProductMaterial::class, 'warehouse_id');
+        return $this->belongsTo(User::class,'user_id');
     }
 }

@@ -2,21 +2,17 @@
 
 namespace Database\Seeders;
 
-use App\Models\Entry;
-use App\Models\EntryMaterial;
-use App\Models\Group;
-use App\Models\Material;
-use App\Models\Permission;
+use App\Models\Department;
+use App\Models\Machine;
+use App\Models\Product;
 use App\Models\Role;
-use App\Models\Section;
+use App\Models\RoleUsers;
+use App\Models\SalaryType;
 use App\Models\User;
+use App\Models\UserOrder;
+use App\Models\Warehouse;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Route;
-
-use Faker\Factory as Faker;
-use Illuminate\Support\Str;
 
 class DatabaseSeeder extends Seeder
 {
@@ -25,57 +21,41 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $faker = Faker::create();
+        // User::factory(10)->create();
 
-        Role::create([
+        $admin = User::factory()->create([
             'name' => 'admin',
-        ]);
-        Role::create([
-            'name' => 'accountant',
-        ]);
-        Role::create([
-            'name' => 'cashier',
-        ]);
-        Role::create([
-            'name' => 'manufacturer',
-        ]);
-        Role::create([
-            'name' => 'hr',
-        ]);
-        Role::create([
-            'name' => 'logistics manager',
-        ]);
-        Role::create([
-            'name' => 'warehouse manager',
-        ]);
-        Role::create([
-            'name' => 'sales manager',
-        ]);
-
-        User::create([
-            'name' => 'Admin',
             'email' => 'admin@gmail.com',
-            'password' => Hash::make(123456789),
-            'role_id' => 1
         ]);
+        $user=User::create([
+            'name'=>'Muhammadnabi',
+            'email'=>'xoliqulovmuhammadnabi842@gmail.com',
+            'password'=>'password'
+        ]);
+        $role=Role::create([
+            'name'=>'user'
+        ]);
+        Role::create([
+            'name'=>'machine'
+        ]);
+        RoleUsers::create([
+            'role_id'=>$role->id,
+            'user_id'=>$user->id
+        ]);
+        Department::create([
+            'name'=>'Hr'
+        ]);
+       SalaryType::create([
+        'name'=>'full_time'
+       ]);
+        Warehouse::create([
+            'name'=>'Warehouse1',
+            'user_id'=>$user->id
+        ]);
+        Machine::create([
+            'name'=>"Machine1"
+        ]);
+        
 
-        Section::create([
-            'name' => 'Bugalteriya',
-        ]);
-        Section::create([
-            'name' => 'Kassa',
-        ]);
-        Section::create([
-            'name' => 'Hr',
-        ]);
-        Section::create([
-            'name' => 'Ishlab chiqarish',
-        ]);
-        Section::create([
-            'name' => 'Menejment',
-        ]);
-        Section::create([
-            'name' => 'Boshqaruv',
-        ]);
     }
 }

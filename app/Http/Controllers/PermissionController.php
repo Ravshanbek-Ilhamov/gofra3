@@ -2,41 +2,38 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StatusPermissionRequest;
-use App\Http\Requests\UpdatePermissionRequest;
-use App\Models\Permission;
+use App\Http\Requests\Permission\PermissionUpdateRequest;
+use App\Models\Permit;
 use Illuminate\Http\Request;
 
 class PermissionController extends Controller
 {
     public function index()
     {
-        $permissions = Permission::paginate(10);
-        return view('admin.permissions.index', compact('permissions'));
+        $permissions=Permit::orderBy('id','desc')->paginate(10);
+        return view('Permission.index',['permissions'=>$permissions]);
     }
-
-    public function edit(Permission $permission)
+    public function update(Permit $permission)
     {
-        return view('admin.permissions.edit', compact('permission'));
-    }
+       // dd($permission->name);
+       if($permission->status)
+       {
+        $permission->status=0;
+       }
+       else
+       {
+        $permission->status=1;
+       }
+       $permission->save();
+       return redirect()->back()->with('success','Permission status changed updated successfully');
 
-    public function update(UpdatePermissionRequest $request, Permission $permission)
+    }
+    public function edit(PermissionUpdateRequest $request,Permit $permission)
     {
-        $permission->update([
-            'name' => $request->name,
-        ]);
-
-        return redirect()->route('permissions.index')->with('update', 'Permission updated successfully.');
+       // dd($request->all());
+       $validated=$request->validated();
+       $permission->name=$validated['name'];
+       $permission->save();
+       return redirect()->back()->with('success','Permission name updated successfully');
     }
-
-    public function status(Permission $permission)
-    {
-        $permission->update([
-            'status' => !$permission->status,
-        ]);
-        $permission->save();
-
-        return redirect()->route('permissions.index')->with('update', 'Status updated');
-    }
-
 }
