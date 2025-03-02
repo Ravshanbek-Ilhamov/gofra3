@@ -2,20 +2,19 @@
 
 namespace App\Models;
 
+use App\Traits\ActionTrait;
 use Illuminate\Database\Eloquent\Model;
 
 class Role extends Model
 {
-    protected $fillable = [
-        'name',
-        'status'
-    ];
-    public function users()
+    use ActionTrait;
+    protected $fillable = ['name','status'];
+    public function user()
     {
-        return $this->belongsToMany(User::class, 'role_users'); 
+        return $this->hasOne(User::class,'role_id');
     }
     public function permissions()
     {
-        return $this->belongsToMany(Permit::class, 'role_permissions', 'role_id', 'permission_id');
+        return $this->belongsToMany(Permission::class,'role_permissions','role_id','permission_id');
     }
 }

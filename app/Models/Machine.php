@@ -2,16 +2,16 @@
 
 namespace App\Models;
 
+use App\Traits\ActionTrait;
 use Illuminate\Database\Eloquent\Model;
 
 class Machine extends Model
 {
-    protected $fillable=[
-        'name',
-        'status'
-    ];
-    public function machineproducts()
+    use ActionTrait;
+    protected $fillable = ['name','status'];
+
+    public function machine_produces()
     {
-        return $this->hasMany(MachineProduct::class);
+        return $this->hasMany(MachineProduce::class, 'machine_id');
     }
 }

@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\Machine\MachineCreateRequest;
-use App\Http\Requests\Machine\MachineUpdateRequest;
 use App\Models\Machine;
 use Illuminate\Http\Request;
 
@@ -11,35 +9,53 @@ class MachineController extends Controller
 {
     public function index()
     {
-        $machines=Machine::orderBy('id','desc')->paginate(10);
-        return view('Machine.index',['machines'=>$machines]);
+        $machines = Machine::all();
+        return view('manufacturer.machines.index', compact('machines'));
     }
-    public function create(MachineCreateRequest $request)
+
+    public function create()
     {
-        // dd($request->all());
-        $machine=new Machine();
-        $machine->name=$request->name;
-        $machine->save();
-        return redirect()->back()->with('success',"Machine created successfully");
+        return view('manufacturer.machines.create');
     }
-    public function statusupdate(Machine $machine)
+
+    public function store(Request $request)
     {
-        // dd($machine->name);
-        if($machine->status)
-        {
-            $machine->status=0;
-        }
-        else{
-            $machine->status=1;
-        }
-        $machine->save();
-        return redirect()->back()->with('success','Machine status update successfully');
+        $request->validate([
+            'name' => 'required',
+        ]);
+
+        Machine::create($request->all());
+
+        return redirect()->route('machines.index')->with('create', 'Machine created successfully.');
     }
-    public function update(MachineUpdateRequest $request,Machine $machine)
+
+    public function edit(Machine $machine)
     {
-        // dd($machine->name);
-        $machine->name=$request->name;
+        return view('manufacturer.machines.edit', compact('machine'));
+    }
+
+    public function update(Request $request, Machine $machine)
+    {
+        $request->validate([
+            'name' => 'required',
+        ]);
+
+        $machine->update($request->all());
+
+        return redirect()->route('machines.index')->with('update', 'Machine updated successfully.');
+    }
+
+    public function destroy(Machine $machine)
+    {
+        $machine->delete();
+
+        return redirect()->route('machines.index')->with('delete', 'Machine deleted successfully.');
+    }
+
+    public function status(Machine $machine)
+    {
+        $machine->status = $machine->status == 1 ? 0 : 1;
         $machine->save();
-        return redirect()->back()->with('success','Machine updated successfully');
+        return redirect()->back()->with('update', 'Status updated');
     }
 }

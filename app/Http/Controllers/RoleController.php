@@ -2,70 +2,72 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\Roles\RoleCreateRequest;
-use App\Http\Requests\Roles\RoleUpdateRequest;
-use App\Models\PermissionGroup;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\CreateRoleRequest;
+use App\Http\Requests\UpdateRoleRequest;
+use App\Models\Group;
+use App\Models\Permission;
 use App\Models\Role;
 use Illuminate\Http\Request;
 
 class RoleController extends Controller
 {
+    /**
+     * Display a listing of the resource.
+     */
     public function index()
     {
-        //dd(123);
-        $permissionGroups=PermissionGroup::all();
-        $roles = Role::orderby('id', 'desc')->paginate(10);
-        return view('Roles.index', ['roles' => $roles,'permissionGroups'=>$permissionGroups]);
+        $roles = Role::with('permissions')->orderBy('id', 'desc')->paginate(10);
+        return view('admin.roles.index', compact('roles'));
     }
-    public function create(RoleCreateRequest $request)
+
+    /**
+     * Show the form for creating a new resource.
+     */
+    public function create()
     {
-       // dd($request->all());
-        $validated = $request->validated();
-
-        $role = new Role();
-        $role->name = $validated['name'];
-        $role->save();
-
-        if (!empty($validated['permissions'])) {
-            $role->permissions()->attach($validated['permissions']);
-        }
-
-        return redirect('/role')->with('success', 'Role created successfully');
+        $groups = Group::with('permissions')->get();
+        return view('admin.roles.create', compact('groups'));
     }
-    public function update(RoleUpdateRequest $request, Role $role)
+
+
+    public function store(CreateRoleRequest $request)
     {
-        //dd($request->all());
-        $validated = $request->validated();
-        $role->name = $validated['name'];
-        $role->status = $request->has('status') ? 1 : 0;
-        $role->save();
-        
-        if (!empty($validated['permissions'])) {
-            $role->permissions()->sync($validated['permissions']);
-        } else {
-            $role->permissions()->sync([]);
-        }
-        
-        return redirect()->route('role.index')->with('success', 'Role updated successfully');
+        $data = $request->validated();
+        $role = Role::create($data);
+        $role->permissions()->attach($request->permissions);
+
+        return redirect()->route('roles.index')->with('create', 'Created');
     }
-    public function delete(Role $role)
+
+    public function edit(Role $role)
+    {
+        $groups = Group::with('permissions')->get();
+
+        return view('admin.roles.edit', compact('role', 'groups'));
+    }
+
+
+    public function update(UpdateRoleRequest $request, Role $role)
+    {
+        $role->name = $request->name;
+        $role->permissions()->sync($request->permissions);
+        $role->save();
+        return redirect()->route('roles.index')->with('update', 'Updated');
+    }
+
+    public function destroy(Role $role)
     {
         $role->delete();
-        return redirect()->back()->with('success', 'Role deleted successfully');
+        return redirect()->route('roles.index')->with('delete', 'deleted');
     }
-    public function page()
+    public function status(Role $role)
     {
-        $permissionGroups = PermissionGroup::all();
-        return view('Roles.create', ['permissionGroups' => $permissionGroups]);
-    }
-    public function updatepage(Role $role)
-    {
-        $permissionGroups = PermissionGroup::all();
-        return view('Roles.update', ['permissionGroups' => $permissionGroups,'role'=>$role]);
-        //dd($role->name);
-    }
-    public function updatestatus(Role $role)
-    {
-        dd(123);
+        if ($role) {
+            $role->status = !$role->status;
+            $role->save();
+        }
+
+        return redirect()->route('roles.index')->with('update', 'Status updated');
     }
 }

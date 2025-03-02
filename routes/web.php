@@ -1,125 +1,142 @@
 <?php
 
-use App\Http\Controllers\CustomerController;
-use App\Http\Controllers\DepartmentController;
-use App\Http\Controllers\EmployeeController;
-use App\Http\Controllers\InvoiceController;
-use App\Http\Controllers\InvoiceMaterialController;
-use App\Http\Controllers\LoginController;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ClientController;
+use App\Http\Controllers\GroupController;
 use App\Http\Controllers\MachineController;
-use App\Http\Controllers\MaterialController;
 use App\Http\Controllers\PermissionController;
-use App\Http\Controllers\PermissionGroupController;
+use App\Http\Controllers\RevenueController;
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SalaryTypeController;
+use App\Http\Controllers\SectionController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WarehouseController;
-use App\Http\Middleware\Check;
-use App\Livewire\DetailWarehouseValuesHistoryComponent;
-use App\Livewire\ManufacturingComponent;
-use App\Livewire\MaterialHistoryComponent;
+use App\Http\Controllers\WorkerController;
+use App\Livewire\ManufactureComponent;
+use App\Livewire\OrderComponent;
+use App\Livewire\ProduceComponent;
 use App\Livewire\ProductComponent;
-use App\Livewire\ProductionComponent;
-use App\Livewire\SalesComponent;
-use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('Login.login');
-});
-Route::prefix('login')->group(function () {
-    Route::get('/', [LoginController::class, 'index'])->name('login');
-    Route::post('/check', [LoginController::class, 'check'])->name('login.check');
-    Route::get('/logout', [LoginController::class, 'logout'])->name('login.logout');
-});
-Route::middleware([Check::class])->group(function () {
+    return view('dashboard');
+})->name('dashboard');
 
-    Route::prefix('role')->group(function () {
-        Route::get('/', [RoleController::class, 'index'])->name('role.index');
-        Route::get('/create-page', [RoleController::class, 'page'])->name('role.create-page');
-        Route::post('/create', [RoleController::class, 'create'])->name('role.create');
-        Route::put('/update/{role}', [RoleController::class, 'update'])->name('role.update');
-        Route::get('/update-page/{role}', [RoleController::class, 'updatepage'])->name('role.update-page');
-        Route::delete('/delete/{role}', [RoleController::class, 'delete'])->name('role.delete');
+Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
+Route::post('/login', [AuthController::class, 'login'])->name('login.post');
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+Route::middleware('check')->group(function () {
+    Route::prefix('roles')->group(function () {
+        Route::get('/', [RoleController::class, 'index'])->name('roles.index');
+        Route::get('/create', [RoleController::class, 'create'])->name('roles.create');
+        Route::post('/', [RoleController::class, 'store'])->name('roles.store');
+        Route::get('/{role}/edit', [RoleController::class, 'edit'])->name('roles.edit');
+        Route::put('/{role}', [RoleController::class, 'update'])->name('roles.update');
+        Route::delete('/{role}', [RoleController::class, 'destroy'])->name('roles.destroy');
+        Route::patch('/{role}/status', [RoleController::class, 'status'])->name('roles.status');
     });
-    Route::prefix('user')->group(function () {
-        Route::get('/', [UserController::class, 'index'])->name('user.index');
-        Route::post('/create', [UserController::class, 'create'])->name('user.create');
-        Route::put('/update/{user}', [UserController::class, 'update'])->name('user.update');
-        Route::delete('/delete/{user}', [UserController::class, 'delete'])->name('user.delete');
+
+    Route::prefix('users')->group(function () {
+        Route::get('/', [UserController::class, 'index'])->name('users.index');
+        Route::get('/create', [UserController::class, 'create'])->name('users.create');
+        Route::post('/', [UserController::class, 'store'])->name('users.store');
+        Route::get('/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
+        Route::put('/{user}', [UserController::class, 'update'])->name('users.update');
+        Route::delete('/{user}', [UserController::class, 'destroy'])->name('users.destroy');
     });
-    Route::prefix('group')->group(function () {
-        Route::get('/', [PermissionGroupController::class, 'index'])->name('group.index');
-        Route::put('/update/{group}', [PermissionGroupController::class, 'update'])->name('group.update');
+
+    Route::prefix('permissions')->group(function () {
+        Route::get('/', [PermissionController::class, 'index'])->name('permissions.index');
+        Route::get('/{permission}/edit', [PermissionController::class, 'edit'])->name('permissions.edit');
+        Route::put('/{permission}', [PermissionController::class, 'update'])->name('permissions.update');
+        Route::patch('/{permission}/status', [PermissionController::class, 'status'])->name('permissions.status');
     });
-    Route::prefix('permission')->group(function () {
-        Route::get('/', [PermissionController::class, 'index'])->name('permission.index');
-        Route::put('/update/{permission}', [PermissionController::class, 'update'])->name('permission.update');
-        Route::put('/edit/{permission}', [PermissionController::class, 'edit'])->name('permission.edit');
+
+    Route::prefix('groups')->group(function () {
+        Route::get('/', [GroupController::class, 'index'])->name('groups.index');
+        Route::patch('/{group}/status', [GroupController::class, 'status'])->name('groups.status');
     });
-    Route::prefix('department')->group(function () {
-        Route::get('/', [DepartmentController::class, 'index'])->name('department.index');
-        Route::post('/create', [DepartmentController::class, 'create'])->name('department.create');
-        Route::put('/update/{department}', [DepartmentController::class, 'update'])->name('department.update');
+
+    Route::prefix('sections')->group(function () {
+        Route::get('/', [SectionController::class, 'index'])->name('sections.index');
+        Route::get('/create', [SectionController::class, 'create'])->name('sections.create');
+        Route::post('/', [SectionController::class, 'store'])->name('sections.store');
+        Route::get('/{section}/edit', [SectionController::class, 'edit'])->name('sections.edit');
+        Route::put('/{section}', [SectionController::class, 'update'])->name('sections.update');
+        Route::delete('/{section}', [SectionController::class, 'destroy'])->name('sections.destroy');
     });
-    Route::prefix('employee')->group(function () {
-        Route::get('/', [EmployeeController::class, 'index'])->name('employee.index');
-        Route::get('/create-page', [EmployeeController::class, 'page'])->name('employee.create-page');
-        Route::post('/create', [EmployeeController::class, 'create'])->name('employee.create');
-        Route::delete('/delete/{employee}', [EmployeeController::class, 'delete'])->name('employee.delete');
-        Route::get('/update-page/{employee}', [EmployeeController::class, 'updatepage'])->name('employee.update-page');
-        Route::put('/update/{employee}', [EmployeeController::class, 'update'])->name('employee.update');
+
+    Route::prefix('workers')->group(function () {
+        Route::get('/', [WorkerController::class, 'index'])->name('workers.index');
+        Route::get('/create', [WorkerController::class, 'create'])->name('workers.create');
+        Route::post('/', [WorkerController::class, 'store'])->name('workers.store');
+        Route::get('/{worker}/edit', [WorkerController::class, 'edit'])->name('workers.edit');
+        Route::put('/{worker}', [WorkerController::class, 'update'])->name('workers.update');
+        Route::delete('/{worker}', [WorkerController::class, 'destroy'])->name('workers.destroy');
     });
-    Route::prefix('salarytype')->group(function(){
-        Route::get('/',[SalaryTypeController::class,'index'])->name('salarytype.index');
-        Route::post('/create',[SalaryTypeController::class,'create'])->name('salarytype.create');
-        Route::put('/update/{salarytype}',[SalaryTypeController::class,'update'])->name('salarytype.update');
-        Route::delete('/delete/{salarytype}',[SalaryTypeController::class,'delete'])->name('salarytype.delete');
+
+    Route::prefix('salary_types')->group(function () {
+        Route::get('/', [SalaryTypeController::class, 'index'])->name('salary_types.index');
+        Route::get('/create', [SalaryTypeController::class, 'create'])->name('salary_types.create');
+        Route::post('/', [SalaryTypeController::class, 'store'])->name('salary_types.store');
+        Route::get('/{salary_type}/edit', [SalaryTypeController::class, 'edit'])->name('salary_types.edit');
+        Route::put('/{salary_type}', [SalaryTypeController::class, 'update'])->name('salary_types.update');
+        Route::delete('/{salary_type}', [SalaryTypeController::class, 'destroy'])->name('salary_types.destroy');
+        Route::patch('/{salary_type}/status', [SalaryTypeController::class, 'status'])->name('salary_types.status');
     });
-    Route::prefix('warehouse')->group(function() {
-        Route::get('/',[WarehouseController::class,'index'])->name('warehouse.index');
-        Route::get('/materials/{warehouse}',[WarehouseController::class,'materialpage'])->name('warehouse.materials');
-        Route::get('/products/{warehouse}',[WarehouseController::class,'productpage'])->name('warehouse.products');
-        Route::post('/create',[WarehouseController::class,'create'])->name('warehouse.create');
-        Route::delete('/delete/{warehouse}',[WarehouseController::class,'delete'])->name('warehouse.delete');
-        Route::put('/update/{warehouse}',[WarehouseController::class,'update'])->name('warehouse.update');
-        Route::put('/activity/{warehouse}',[WarehouseController::class,'activity'])->name('warehouse.activity');
-        Route::post('/transfer/{warehouse_id}',[WarehouseController::class,'export'])->name('warehouse.transfer');
-        Route::post('/producttransfer/{warehouse_id}',[WarehouseController::class,'productexport'])->name('warehouse.producttransfer');
+
+    Route::prefix('warehouses')->group(function () {
+        Route::get('/', [WarehouseController::class, 'index'])->name('warehouses.index');
+        Route::get('/create', [WarehouseController::class, 'create'])->name('warehouses.create');
+        Route::get('/{warehouse}', [WarehouseController::class, 'show'])->name('warehouses.show');
+        Route::post('/', [WarehouseController::class, 'store'])->name('warehouses.store');
+        Route::post('/transfer', [WarehouseController::class, 'transfer'])->name('warehouses.transfer');
+        Route::get('/{warehouse}/edit', [WarehouseController::class, 'edit'])->name('warehouses.edit');
+        Route::put('/{warehouse}', [WarehouseController::class, 'update'])->name('warehouses.update');
+        Route::delete('/{warehouse}', [WarehouseController::class, 'destroy'])->name('warehouses.destroy');
+        Route::patch('/{warehouse}/status', [WarehouseController::class, 'status'])->name('warehouses.status');
     });
-    Route::prefix('invoice_materials')->group(function(){
-        Route::get('/',[InvoiceMaterialController::class,'index'])->name('invoice_materials.index');
-        Route::post('/create',[InvoiceMaterialController::class,'create'])->name('invoice_materials.create');
-        Route::get('/create-page',[InvoiceMaterialController::class,'page'])->name('invoice_materials.create-page');
-        Route::get('/detail/{invoice_material}',[InvoiceMaterialController::class,'show'])->name('invoice_materials.detail');
+
+    Route::prefix('revenues')->group(function () {
+        Route::get('/', [RevenueController::class, 'index'])->name('revenues.index');
+        Route::get('/create', [RevenueController::class, 'create'])->name('revenues.create');
+        Route::get('/{revenue}', [RevenueController::class, 'show'])->name('revenues.show');
+        Route::post('/', [RevenueController::class, 'store'])->name('revenues.store');
     });
-    Route::prefix('products')->group(function(){
-        Route::get('/',ProductComponent::class)->name('products.index');
+
+    Route::prefix('products')->group(function () {
+        Route::get('/', ProductComponent::class)->name('products.index');
     });
-    Route::prefix('machines')->group(function() {
-        Route::get('/',[MachineController::class,'index'])->name('machines.index');
-        Route::post('/create',[MachineController::class,'create'])->name('machines.create');
-        Route::put('/status/{machine}',[MachineController::class,'statusupdate'])->name('machines.status');
-        Route::put('/update/{machine}',[MachineController::class,'update'])->name('machines.update');
+
+    Route::prefix('machines')->group(function () {
+        Route::get('/', [MachineController::class, 'index'])->name('machines.index');
+        Route::get('/create', [MachineController::class, 'create'])->name('machines.create');
+        Route::post('/', [MachineController::class, 'store'])->name('machines.store');
+        Route::get('/{machine}/edit', [MachineController::class, 'edit'])->name('machines.edit');
+        Route::put('/{machine}', [MachineController::class, 'update'])->name('machines.update');
+        Route::delete('/{machine}', [MachineController::class, 'destroy'])->name('machines.destroy');
+        Route::patch('/{machine}/status', [MachineController::class, 'status'])->name('machines.status');
     });
-    Route::prefix('manufacturing')->group(function(){
-        Route::get('/',ManufacturingComponent::class)->name('manufacturing.index');
+
+    Route::prefix('produces')->group(function () {
+        Route::get('/', ProduceComponent::class)->name('produces.index');
     });
-    Route::prefix('productions')->group(function(){
-        Route::get('/',ProductionComponent::class)->name('productions.index');
+
+    Route::prefix('manufactures')->group(function () {
+        Route::get('/', ManufactureComponent::class)->name('manufactures.index');
     });
-    Route::prefix('history')->group(function(){
-        Route::get('/materials',MaterialHistoryComponent::class)->name('history.material');
-        Route::get('/detail', DetailWarehouseValuesHistoryComponent::class)->name('history.detail');
+
+    Route::prefix('clients')->group(function () {
+        Route::get('/', [ClientController::class, 'index'])->name('clients.index');
+        Route::get('/create', [ClientController::class, 'create'])->name('clients.create');
+        Route::post('/', [ClientController::class, 'store'])->name('clients.store');
+        Route::get('/{client}/edit', [ClientController::class, 'edit'])->name('clients.edit');
+        Route::put('/{client}', [ClientController::class, 'update'])->name('clients.update');
+        Route::delete('/{client}', [ClientController::class, 'destroy'])->name('clients.destroy');
     });
-    Route::prefix('customer')->group(function(){
-        Route::get('/',[CustomerController::class,'index'])->name('customer.index');
-        Route::get('/createpage',[CustomerController::class,'createpage'])->name('customer.createpage');
-        Route::post('/store',[CustomerController::class,'store'])->name('customer.store');
-        Route::get('/updatepage/{customer}',[CustomerController::class,'updatepage'])->name('customer.updatepage');
-        Route::put('/update/{customer}',[CustomerController::class,'update'])->name('customer.update');
-        Route::delete('/delete/{customer}',[CustomerController::class,'delete'])->name('customer.delete');
-    });
-    Route::prefix('sale')->group(function(){
-        Route::get('/',SalesComponent::class)->name('sale.index');
+
+    Route::prefix('orders')->group(function () {
+        Route::get('/', OrderComponent::class)->name('orders.index');
     });
 });

@@ -2,36 +2,57 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\SalaryType\SalaryTypeCreateRequest;
-use App\Http\Requests\SalaryType\SalaryTypeUpdateRequest;
-use App\Models\SalaryType;
 use Illuminate\Http\Request;
+use App\Models\Salary_Type;
 
 class SalaryTypeController extends Controller
 {
     public function index()
     {
-        $salarytypes=SalaryType::orderBy('id','desc')->paginate(10);
-        return view('SalaryType.index',['salarytypes'=>$salarytypes]);
+        $salary_types = Salary_Type::all();
+        return view('hr.salary_types.index', compact('salary_types'));
     }
-    public function create(SalaryTypeCreateRequest $request)
+
+    public function create()
     {
-        $salarytype=new SalaryType();
-        $salarytype->name=$request->name;
-        $salarytype->save();
-        return redirect()->back()->with('success','Salarytype created successfully');
+        return view('hr.salary_types.create');
     }
-    public function update(SalaryTypeUpdateRequest $request,SalaryType $salarytype)
+
+    public function store(Request $request)
     {
-        // dd($salarytype->name);
-        $salarytype->name=$request->name;
-        $salarytype->save();
-        return redirect()->back()->with('success','SalaryType updated successfully');
+        $request->validate([
+            'name' => 'required|string|max:255',
+        ]);
+
+        Salary_Type::create($request->all());
+        return redirect()->route('salary_types.index')->with('create', 'Salary Type created successfully.');
     }
-    public function delete(SalaryType $salarytype)
+
+    public function edit(Salary_Type $salary_type)
     {
-        //dd(123);
-        $salarytype->delete();
-        return redirect()->back()->with('success','SalaryType deleted successfully');
+        return view('hr.salary_types.edit', compact('salary_type'));
+    }
+
+    public function update(Request $request, Salary_Type $salary_type)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+        ]);
+
+        $salary_type->update($request->all());
+        return redirect()->route('salary_types.index')->with('update', 'Salary Type updated successfully.');
+    }
+
+    public function destroy(Salary_Type $salary_type)
+    {
+        $salary_type->delete();
+        return redirect()->route('salary_types.index')->with('delete', 'Salary Type deleted successfully.');
+    }
+
+    public function status(Salary_Type $salary_type)
+    {
+        $salary_type->status = !$salary_type->status;
+        $salary_type->save();
+        return redirect()->route('salary_types.index')->with('update', 'Salary Type status updated successfully!');
     }
 }

@@ -2,181 +2,150 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\Warehouse\ExportMaterialRequest;
-use App\Http\Requests\Warehouse\ExportProductRequest;
-use App\Http\Requests\Warehouse\WarehouseCreateRequest;
-use App\Http\Requests\Warehouse\WarehouseUpdateRequest;
 use App\Models\History;
 use App\Models\User;
 use App\Models\Warehouse;
-use App\Models\WarehouseValue;
+use App\Models\WarehouseMaterial;
 use Illuminate\Http\Request;
 
 class WarehouseController extends Controller
 {
     public function index()
     {
-        $users=User::all();
-        $warehouses=Warehouse::orderBy('id','desc')->paginate(10);
-        return view('Warehouse.index',['warehouses'=>$warehouses,'users'=>$users]);
+        $warehouses = Warehouse::all();
+        return view('admin.warehouses.index', compact('warehouses'));
     }
-    public function create(WarehouseCreateRequest $request)
+
+    public function create()
     {
-        // dd(123);
-        $warehouse=new Warehouse();
-        $warehouse->name=$request->name;
-        $warehouse->user_id=$request->user_id;
-        $warehouse->save();
-        return redirect()->back()->with('success','Warehouses created successfully');
+        $users = User::all();
+        return view('admin.warehouses.create', compact('users'));
     }
-    public function delete(Warehouse $warehouse)
+
+    public function store(Request $request)
     {
-        // dd($warehouse->name);
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'user_id' => 'required|exists:users,id',
+        ]);
+
+        $warehouse = Warehouse::create($request->all());
+        return redirect()->route('warehouses.index')->with('create', 'Warehouse created successfully.');
+    }
+
+    public function edit(Warehouse $warehouse)
+    {
+        $users = User::all();
+        return view('admin.warehouses.edit', compact('warehouse', 'users'));
+    }
+
+    public function update(Request $request, Warehouse $warehouse)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'user_id' => 'required|exists:users,id',
+        ]);
+
+        $warehouse->update($request->all());
+        return redirect()->route('warehouses.index')->with('update', 'Warehouse updated successfully.');
+    }
+
+    public function destroy(Warehouse $warehouse)
+    {
         $warehouse->delete();
-        return redirect()->back()->with('success','Warehouse deleted successfully');
+        return redirect()->route('warehouses.index')->with('delete', 'Warehouse deleted successfully.');
     }
-    public function update(WarehouseUpdateRequest $request,Warehouse $warehouse)
+
+    public function status(Warehouse $warehouse)
     {
-       // dd($warehouse->name);
-       $warehouse->name=$request->name;
-       $warehouse->save();
-       return redirect()->back()->with('success','Warehouse updated successfully');
-        
-    }
-    public function activity(Warehouse $warehouse)
-    {
-        // dd($warehouse->name);
-        if($warehouse->status)
-        {
-            $warehouse->status=0;
-        }
-        else
-        {
-            $warehouse->status=1;
-        }
+        $warehouse->status = !$warehouse->status;
         $warehouse->save();
-        return redirect()->back()->with('success','Warehouse status updated successfully');
+        return redirect()->route('warehouses.index')->with('update', 'Warehouse status updated');
     }
-    public function materialpage(Warehouse $warehouse)
-    {
-        $WarehouseValue=WarehouseValue::where('warehouse_id',$warehouse->id)->where('type',1)->get();
-        $warehouses=Warehouse::where('id','!=',$warehouse->id)->get();
-        return view('Warehouse.warehouse_materials',['WarehouseValue'=>$WarehouseValue,'warehouses'=>$warehouses,'id'=>$warehouse->id]);
-    }
-    public function export(ExportMaterialRequest $request,$warehouse_id)
-    {
 
-        $material_id = $request->input('material_id');
-        $to_id = $request->input('to_id');
-        $quantity = $request->input('quantity');
-        $sourceWarehouse = WarehouseValue::where('warehouse_id', $warehouse_id)
-            ->where('product_id', $material_id)
-            ->first();
-            if (!$sourceWarehouse || $sourceWarehouse->value < $quantity) {
-                return redirect()->back()->with('success',"ishlamiyapti");
+    public function show($id)
+    {
+        $warehouse = Warehouse::find($id);
+        $sklads = WarehouseMaterial::where('warehouse_id', $id)->get();
+        $warehouses = Warehouse::where('id', '!=', $id)->get();
+        return view('admin.warehouses.show', compact('warehouses', 'sklads'));
+    }
+
+    public function transfer(Request $request)
+    {
+        $request->validate([
+            'material_id' => 'required|exists:warehouse_materials,id',
+            'warehouse_id' => 'required|exists:warehouses,id',
+            'quantity' => 'required|numeric|min:1',
+            'real' => 'required|exists:warehouses,id',
+        ]);
+
+        if ($request->type) {
+            $material = WarehouseMaterial::where('warehouse_id', $request->real)->where('product_id', $request->material_id)->where('type', $request->type)->first();
+        } else {
+            $material = WarehouseMaterial::where('warehouse_id', $request->real)->where('product_id', $request->material_id)->first();
+        }
+
+        if ($material->value < $request->quantity) {
+            return redirect()->back()->with('error', 'Not enough materials in stock.');
+        }
+        $value = $material->value ?? 0;
+
+        $material->value -= $request->quantity;
+        $material->save();
+
+        if ($request->type) {
+            $targetMaterial = WarehouseMaterial::where('warehouse_id', $request->warehouse_id)
+                ->where('product_id', $request->material_id)
+                ->where('type', $request->type)->get()->first();
+        } else {
+            $targetMaterial = WarehouseMaterial::where('warehouse_id', $request->warehouse_id)
+                ->where('product_id', $request->material_id)
+                ->first();
+        }
+        if ($targetMaterial) {
+            $targetMaterial->value += $request->quantity;
+            $targetMaterial->save();
+        } else {
+            if ($request->type) {
+                WarehouseMaterial::create([
+                    'warehouse_id' => $request->warehouse_id,
+                    'product_id' => $request->material_id,
+                    'value' => $request->quantity,
+                    'type' => $request->type
+                ]);
+            } else {
+                WarehouseMaterial::create([
+                    'warehouse_id' => $request->warehouse_id,
+                    'product_id' => $request->material_id,
+                    'value' => $request->quantity,
+                    'type' => 1
+                ]);
             }
-            
-            $sourceWarehouse->value -= $quantity;
-            $sourceWarehouse->save();
-            
-        $targetWarehouse = WarehouseValue::where('warehouse_id', $to_id)
-            ->where('product_id', $material_id)
-            ->first();
-
-        if ($targetWarehouse) {
-            $targetWarehouse->value += $quantity;
-            $targetWarehouse->save();
+        }
+        if ($request->type) {
+            History::create([
+                'type' => 4,
+                'material_id' => $request->material_id,
+                'quantity' => $request->quantity,
+                'was' => $value,
+                'been' => $material->value,
+                'from_id' => $request->real,
+                'to_id' => $request->warehouse_id
+            ]);
         } else {
-            WarehouseValue::create([
-                'warehouse_id' => $to_id,
-                'product_id' => $material_id,
-                'value' => $quantity,
+
+            History::create([
+                'type' => 2,
+                'material_id' => $request->material_id,
+                'quantity' => $request->quantity,
+                'was' => $value,
+                'been' => $material->value,
+                'from_id' => $request->real,
+                'to_id' => $request->warehouse_id
             ]);
         }
 
-        History::create([
-            'type' => 2,
-            'material_id' => $material_id,
-            'quantity' => $quantity,
-            'previous_value' => $sourceWarehouse->value + $quantity,
-            'current_value' => $sourceWarehouse->value,
-            'from_id' => $warehouse_id,
-            'to_id' => $to_id
-        ]);
-
-        History::create([
-            'type' => 2,
-            'material_id' => $material_id,
-            'quantity' => $quantity,
-            'previous_value' => $targetWarehouse ? $targetWarehouse->value - $quantity : 0,
-            'current_value' => $targetWarehouse ? $targetWarehouse->value : $quantity,
-            'from_id' => $warehouse_id,
-            'to_id' => $to_id
-        ]);
-
-        return redirect()->back()->with('success',"Materail exported successfully");
-    }
-    public function productpage(Warehouse $warehouse)
-    {
-        $WarehouseValue=WarehouseValue::where('warehouse_id',$warehouse->id)->where('type',2)->get();
-        $warehouses=Warehouse::where('id','!=',$warehouse->id)->get();
-        return view('Warehouse.warehouse_products',['WarehouseValue'=>$WarehouseValue,'warehouses'=>$warehouses,'id'=>$warehouse->id]);
-    }
-    public function productexport(ExportProductRequest $request,$warehouse_id)
-    {
-        $product_id = $request->input('product_id'); 
-        $to_id = $request->input('to_id'); 
-        $quantity = $request->input('quantity'); 
-    
-        $sourceWarehouse = WarehouseValue::where('warehouse_id', $warehouse_id)
-            ->where('product_id', $product_id)
-            ->where('type','2')
-            ->first();
-    
-        if (!$sourceWarehouse || $sourceWarehouse->value < $quantity) {
-            return redirect()->back()->with('error', "Not enough product in the warehouse!");
-        }
-        // dd(123);
-        $sourceWarehouse->value -= $quantity;
-        $sourceWarehouse->save();
-    
-        $targetWarehouse = WarehouseValue::where('warehouse_id', $to_id)
-            ->where('product_id', $product_id)
-            ->where('type',2)
-            ->first();
-    
-        if ($targetWarehouse) {
-            $targetWarehouse->value += $quantity;
-            $targetWarehouse->save();
-        } else {
-            WarehouseValue::create([
-                'warehouse_id' => $to_id,
-                'product_id' => $product_id,
-                'value' => $quantity,
-                'type'=>2
-            ]);
-        }
-    
-        History::create([
-            'type' => 5, 
-            'material_id' => $product_id,
-            'quantity' => $quantity,
-            'previous_value' => $sourceWarehouse->value + $quantity,
-            'current_value' => $sourceWarehouse->value,
-            'from_id' => $warehouse_id,
-            'to_id' => $to_id
-        ]);
-    
-        History::create([
-            'type' => 5,
-            'material_id' => $product_id,
-            'quantity' => $quantity,
-            'previous_value' => $targetWarehouse ? $targetWarehouse->value - $quantity : 0,
-            'current_value' => $targetWarehouse ? $targetWarehouse->value : $quantity,
-            'from_id' => $warehouse_id,
-            'to_id' => $to_id
-        ]);
-    
-        return redirect()->back()->with('success', "Product exported successfully");
+        return redirect()->back()->with('update', 'Transfer made successfully.');
     }
 }

@@ -3,12 +3,15 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+
+use App\Traits\ActionTrait as TraitsActionTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
+    use TraitsActionTrait;
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
@@ -20,6 +23,7 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'role_id',
         'password',
     ];
 
@@ -45,8 +49,29 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
-    public function roles()
+
+    public function role()
     {
-        return $this->belongsToMany(Role::class, 'role_users');
+        return $this->belongsTo(Role::class,'role_id');
+    }
+
+    public function workers()
+    {
+        return $this->hasOne(Worker::class, 'user_id');
+    }
+
+    public function warehouse()
+    {
+        return $this->hasOne(Warehouse::class, 'user_id');
+    }
+
+    public function machine_produces()
+    {
+        return $this->hasMany(MachineProduce::class, 'user_id');
+    }
+
+    public function actions()
+    {
+        return $this->hasMany(Action::class, 'user_id');
     }
 }
